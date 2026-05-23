@@ -1,0 +1,21 @@
+build/
+.cache/
+
+# Enrollment data — keep private, never commit face data
+data/*.yml
+
+# ONNX models — large binaries, use scripts/download_models.sh to fetch them
+models/*.onnx
+
+# Debug frame captures written when debug_save_frames = true
+debug_rgb_*.jpg
+debug_ir_*.jpg
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Compile database (machine-specific)
+compile_commands.json
