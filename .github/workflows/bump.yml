@@ -42,7 +42,8 @@ jobs:
       - name: Bump version
         id: bump
         run: |
-          if cz bump --changelog --yes; then
+          if cz bump --no-changelog --yes; then
+            cz changelog || true
             echo "bumped=true"  >> "$GITHUB_OUTPUT"
             echo "version=$(cz version --project)" >> "$GITHUB_OUTPUT"
           else
