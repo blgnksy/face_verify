@@ -8,6 +8,7 @@ on:
   push:
     branches: [main]
     tags-ignore: ['v*']
+    paths-ignore: ['.devcontainer/**']
   pull_request:
     branches: [main]
 
@@ -27,6 +28,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Configure
         run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE=ON
