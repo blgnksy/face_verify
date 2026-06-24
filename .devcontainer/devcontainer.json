@@ -1,0 +1,45 @@
+{
+  "name": "face_verify",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceFolder": "/workspace",
+  "mounts": [
+		{
+			"source": "${localEnv:HOME}/.gitconfig",
+			"target": "/home/ubuntu/.gitconfig",
+			"type": "bind"
+		},
+		{
+			"source": "${localEnv:HOME}/.claude",
+			"target": "/home/ubuntu/.claude",
+			"type": "bind"
+		},
+    {
+      "source": "${localWorkspaceFolder}",
+      "target": "/workspace",
+      "type": "bind"
+    }
+	],
+
+  "runArgs": ["--device=/dev/video0", "--device=/dev/video2"],
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "anthropic.claude-code"
+      ],
+      "settings": {
+        "cmake.buildDirectory": "${workspaceFolder}/build",
+        "cmake.configureOnOpen": true,
+        "cmake.generator": "Ninja",
+        "C_Cpp.intelliSenseEngine": "disabled",
+        "clangd.arguments": ["--compile-commands-dir=${workspaceFolder}/build"]
+      }
+    }
+  },
+
+  "postCreateCommand": "cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && cmake --build build -j$(nproc) && bash scripts/download_models.sh || true && pre-commit install"
+}

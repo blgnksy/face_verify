@@ -1,0 +1,77 @@
+# face_verify configuration
+# Copy to /etc/face_verify/face_verify.conf and adjust as needed.
+# All settings are optional — defaults are shown below.
+
+# ── Cameras ───────────────────────────────────────────────────
+# Identify devices: v4l2-ctl --list-devices
+# Test a device:    ffplay /dev/video0
+
+# RGB (color) camera
+rgb_device = /dev/video0
+
+# IR (infrared) camera — REQUIRED for liveness detection.
+# A plain RGB webcam is not sufficient; you need a dedicated IR camera or
+# the IR stream from a depth sensor (RealSense, Azure Kinect, OAK-D, etc.).
+ir_device = /dev/video2
+
+# Capture resolution — must match a mode supported by the camera.
+# Check supported modes: v4l2-ctl --list-formats-ext --device /dev/video0
+rgb_width  = 640
+rgb_height = 480
+ir_width   = 640
+ir_height  = 360
+
+# ── Paths ─────────────────────────────────────────────────────
+data_dir   = /etc/face_verify/data
+models_dir = /etc/face_verify/models
+
+# ── Thresholds ────────────────────────────────────────────────
+# Both must pass for an ACCEPT decision:
+#   1. dl_threshold: deep-learning score (cosine similarity) minimum
+#   2. threshold:    final ensemble score minimum
+#
+# Tuning:
+#   Too many false rejects → lower threshold (e.g. 0.45)
+#   Security priority       → raise threshold (e.g. 0.60)
+#   Check scores with:      face_verify verify --debug
+
+threshold    = 0.50
+dl_threshold = 0.40
+
+# ── Ensemble weights ──────────────────────────────────────────
+# dl_weight + classical_weight should sum to 1.0.
+# Raise dl_weight if you trust the deep model more; raise classical_weight
+# if you see the DL score fluctuate and the classical score is stable.
+dl_weight        = 0.60
+classical_weight = 0.40
+
+# ── Detector tuning ───────────────────────────────────────────
+# detect_conf_threshold: minimum YuNet face confidence to accept a detection.
+#   Lower if faces are missed; raise to discard weak/partial detections.
+# detect_nms_threshold: IoU threshold for non-maximum suppression.
+#   Lower to keep only the most-confident box when multiple overlap.
+detect_conf_threshold = 0.60
+detect_nms_threshold  = 0.30
+
+# ── Capture ───────────────────────────────────────────────────
+# How many frame pairs to capture per verify/enroll call.
+# More frames = more robust detection, but slower startup.
+num_frames        = 3
+frame_interval_ms = 200
+
+# ── Liveness ──────────────────────────────────────────────────
+# Minimum face bounding-box shift (pixels) between frames required to pass
+# the liveness check. A completely static image (photo / screen) shifts 0px.
+# Natural breathing / micro-tremor produces ~1–3 px at 640×480.
+# Lower if you are being rejected despite moving; raise for stricter anti-spoof.
+liveness_min_shift = 0.5
+liveness_max_shift = 80.0
+
+# ── Debug ─────────────────────────────────────────────────────
+# Print per-component scores to stderr (CLI) / syslog (PAM module).
+# Check PAM logs: journalctl -t face_verify  (or grep AUTH in /var/log/auth.log)
+debug = false
+
+# Save raw captured frame pairs to disk during enroll and verify (for diagnosing detection issues).
+# Enroll writes debug_rgb_N.jpg / debug_ir_N.jpg; verify writes verify_rgb_N.jpg / verify_ir_N.jpg.
+debug_save_frames = false
