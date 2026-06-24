@@ -1,0 +1,35 @@
+name: Bump
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-24.04
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.actor.login != 'github-actions[bot]'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install commitizen
+        run: pip install commitizen --quiet
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version and push tag
+        run: |
+          cz bump --changelog --yes && git push --follow-tags || true
