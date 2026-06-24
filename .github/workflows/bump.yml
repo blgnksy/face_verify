@@ -29,9 +29,6 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install commitizen
-        run: pip install commitizen --quiet
-
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
