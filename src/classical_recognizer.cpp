@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "face_verify/classical_recognizer.hpp"
+#include <algorithm>
 #include <cmath>
 #include <opencv2/imgproc.hpp>
 
@@ -213,7 +214,7 @@ float ClassicalRecognizer::verify(const cv::Mat &live_gray,
   float tmpl_score = compare_template(live_gray, ref_aligned_gray);
 
   float combined = lbp_weight * lbp_score + template_weight * tmpl_score;
-  return combined;
+  return std::clamp(combined, 0.0f, 1.0f);
 }
 
 } // namespace fv
